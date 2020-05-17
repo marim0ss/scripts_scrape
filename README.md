@@ -12,4 +12,5 @@ requirements.txtを読み込めばライブラリがまとめてインストー�
 pip install -r requirements.txt
 ```
 https://akogare-se.hatenablog.com/entry/2019/01/02/220330
+
 https://note.nkmk.me/python-pip-install-requirements/
