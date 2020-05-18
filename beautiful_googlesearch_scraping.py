@@ -8,7 +8,7 @@ import pprint  # pprint.pprint()で出力が改行されて見やすくなる
 
 # 便利関数
 def print_html(x):
-    print(bs4.BeautifulSoup(x.get_attribute('innerHTML')).prettify())
+    print(bs4.BeautifulSoup(x.get_attribute('innerHTML'), 'html.parser').prettify())
 
 # ブラウザ起動
 browser = webdriver.Chrome()
@@ -27,5 +27,6 @@ html = browser.find_element_by_id('main')  # これが動的に生成されたHT
 # print_html(html)
 
 result = html.find_element_by_id('result-stats')
-print_html(result)  # 警告付きだが取れる
+print_html(result)
+print(type(result))
 browser.close()
