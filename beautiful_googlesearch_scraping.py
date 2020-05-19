@@ -2,8 +2,10 @@
 from selenium import webdriver
 import chromedriver_binary  # パスを通せる
 import bs4
+from bs4 import BeautifulSoup
 import pandas as pd
 import time
+import re
 import pprint  # pprint.pprint()で出力が改行されて見やすくなる
 
 # 便利関数
@@ -14,19 +16,27 @@ def print_html(x):
 browser = webdriver.Chrome()
 
 # サイトに移動
-URL = 'https://www.google.com/search?q=%E3%82%B3%E3%83%8A%E3%83%B3&oq=%E3%82%B3%E3%83%8A%E3%83%B3&aqs=chrome..69i57j0l2j69i65l3j69i61l2.1724j0j7&sourceid=chrome&ie=UTF-8'
+URL = 'https://www.google.com/search?source=hp&ei=wpDCXrvNLZmJoAS-oanIBQ&q=%E5%A4%A9%E6%B0%97%E4%BA%88%E5%A0%B1&oq=&gs_lcp=CgZwc3ktYWIQARgEMg4IABDqAhC0AhCaARDlAjIOCAAQ6gIQtAIQmgEQ5QIyDggAEOoCELQCEJoBEOUCMg4IABDqAhC0AhCaARDlAjIOCAAQ6gIQtAIQmgEQ5QIyDggAEOoCELQCEJoBEOUCUABYAGDwQ2gBcAB4AIABAIgBAJIBAJgBAKoBB2d3cy13aXqwAQY&sclient=psy-ab&ved=0ahUKEwi7tv6qxb3pAhWZBIgKHb5QClkQ4dUDCA0'
+key_word = 'コナン'  # ブラウザにいれるので日本語で
 browser.get(URL)
 
 # 検索ワード入力欄でボタンをクリック
 searchform = browser.find_element_by_id('searchform')
+text = searchform.find_element_by_name("q") # 検索用テキストボックスの要素を取得
+text.clear() # すでに入っているキーワードを消す
+text.send_keys(key_word)
 btn = searchform.find_element_by_tag_name('button')
 btn.click()
 time.sleep(3)
 
-html = browser.find_element_by_id('main')  # これが動的に生成されたHTML
-# print_html(html)
 
-result = html.find_element_by_id('result-stats')
-print_html(result)
-print(type(result))
+html = browser.find_element_by_id('appbar')  # これが動的に生成されたHTML
+# print_html(html)  # -> <class 'selenium.webdriver.remote.webelement.WebElement'>
+
+str = html.get_attribute('innerHTML')  # -> innnerHTML取得のとき<class 'str'>になってる？
+print(str)
+print(type(str))
+
+result = re.search(r'約\s(.+)\s件', str) # -> <class 'str'>
+print(result[1])
 browser.close()
