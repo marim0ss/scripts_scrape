@@ -7,6 +7,8 @@ import pandas as pd
 import time
 import re
 import pprint  # pprint.pprint()で出力が改行されて見やすくなる
+import os # ディレクトリパス簡略化
+import csv # csv扱う
 
 # 便利関数
 def print_html(x):
@@ -29,6 +31,26 @@ form_text = form_area.find_element_by_name("s01_srchCondtn_txtSimpleSearch")
 form_text.send_keys(seach_word)
 search_btn = form_area.find_element_by_name('s01_srchBtn_btnSearch')
 search_btn.click()
-time.sleep(3)
+time.sleep(2)
 
+
+html = browser.find_element_by_id('s01_searchRslt')
+# soup = BeautifulSoup(html, "html.parser")
+soup = bs4.BeautifulSoup(html.get_attribute('innerHTML'), 'html.parser')
+
+# print(soup.table.tr) # -> 成功
+# print(type(soup.table)) # -> table: <class 'bs4.element.Tag'>
+# rows = (soup.table.tr).text
+
+
+# print(soup.table.findAll("tr"))  # まとめて入ってる
+rows = soup.table.findAll("tr")
+
+with open(f'{os.getcwd()}/syohyo.csv', 'w', encoding='utf-8') as file:
+    writer = csv.writer(file)
+    for row in rows:
+        csvRow = []
+        for cell in row.findAll(['td', 'th']):
+            csvRow.append(cell.get_text())
+        writer.writerow(csvRow)
 browser.close()
