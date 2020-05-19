@@ -29,14 +29,11 @@ btn = searchform.find_element_by_tag_name('button')
 btn.click()
 time.sleep(3)
 
+# クリック後
+stats = browser.find_element_by_id("result-stats").text
+print(stats)
+print(type(stats))  # -> <class 'str'>
 
-html = browser.find_element_by_id('appbar')  # これが動的に生成されたHTML
-# print_html(html)  # -> <class 'selenium.webdriver.remote.webelement.WebElement'>
-
-str = html.get_attribute('innerHTML')  # -> innnerHTML取得のとき<class 'str'>になってる？
-print(str)
-print(type(str))
-
-result = re.search(r'約\s(.+)\s件', str) # -> <class 'str'>
+result = re.search(r'約\s(.+)\s件', stats) # -> <class 'str'>
 print(result[1])
 browser.close()
