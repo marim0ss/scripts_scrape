@@ -8,16 +8,15 @@ import time
 import re
 import pprint  # pprint.pprint()で出力が改行されて見やすくなる
 import os # ディレクトリパス簡略化
-import csv # csv扱う
+import csv
 
 # 便利関数
 def print_html(x):
     print(bs4.BeautifulSoup(x.get_attribute('innerHTML'), 'html.parser').prettify())
 
 seach_word = "Ｃａｒｅｅｒ Ｂｏｏｓｔ"
-# ブラウザ起動
-browser = webdriver.Chrome()
 
+browser = webdriver.Chrome()
 # サイトに移動
 URL = 'https://www.j-platpat.inpit.go.jp/s0100'
 browser.get(URL)
@@ -42,15 +41,19 @@ soup = bs4.BeautifulSoup(html.get_attribute('innerHTML'), 'html.parser')
 # print(type(soup.table)) # -> table: <class 'bs4.element.Tag'>
 # rows = (soup.table.tr).text
 
-
 # print(soup.table.findAll("tr"))  # まとめて入ってる
 rows = soup.table.findAll("tr")
+
+# s = pd.Series(rows) # これ1行でもできるっぽい（空白のところが多重配列になる）
+
+# df = pd.DataFrame(data, columns=['期間', 'ごみ', 'キーワード', '記事数']).drop('ごみ', axis=1)
 
 with open(f'{os.getcwd()}/syohyo.csv', 'w', encoding='utf-8') as file:
     writer = csv.writer(file)
     for row in rows:
         csvRow = []
         for cell in row.findAll(['td', 'th']):
-            csvRow.append(cell.get_text())
+            csvRow.append(cell.get_text().strip().replace(' ', ''))
+        print(repr(csvRow))  # repr:空白文字などがわかりやすくなる
         writer.writerow(csvRow)
 browser.close()
