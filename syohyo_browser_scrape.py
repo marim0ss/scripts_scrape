@@ -32,21 +32,15 @@ search_btn = form_area.find_element_by_name('s01_srchBtn_btnSearch')
 search_btn.click()
 time.sleep(2)
 
-
 html = browser.find_element_by_id('s01_searchRslt')
 # soup = BeautifulSoup(html, "html.parser")
 soup = bs4.BeautifulSoup(html.get_attribute('innerHTML'), 'html.parser')
 
 # print(soup.table.tr) # -> 成功
-# print(type(soup.table)) # -> table: <class 'bs4.element.Tag'>
 # rows = (soup.table.tr).text
-
-# print(soup.table.findAll("tr"))  # まとめて入ってる
-rows = soup.table.findAll("tr")
+rows = soup.table.findAll("tr")  # まとめて入ってる
 
 # s = pd.Series(rows) # これ1行でもできるっぽい（空白のところが多重配列になる）
-
-# df = pd.DataFrame(data, columns=['期間', 'ごみ', 'キーワード', '記事数']).drop('ごみ', axis=1)
 
 with open(f'{os.getcwd()}/syohyo.csv', 'w', encoding='utf-8') as file:
     writer = csv.writer(file)
