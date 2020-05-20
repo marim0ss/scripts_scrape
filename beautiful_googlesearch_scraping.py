@@ -1,35 +1,39 @@
 #coding: UTF-8
-from urllib import request
+from selenium import webdriver
+import chromedriver_binary  # パスを通せる
+import bs4
 from bs4 import BeautifulSoup
-import urllib.parse
+import pandas as pd
+import time
+import re
 import pprint  # pprint.pprint()で出力が改行されて見やすくなる
 
-def scraping():
-    #url
-    url = "https://www.google.com/search"
-    seach_word = 'クロスフォー'
+# 便利関数
+def print_html(x):
+    print(bs4.BeautifulSoup(x.get_attribute('innerHTML'), 'html.parser').prettify())
 
-    encodeWord = urllib.parse.quote(seach_word)
-    url = url + '?as_q=' + encodeWord #+ '&as_oq=' + CHECK_WORD
+# ブラウザ起動
+browser = webdriver.Chrome()
 
-    #get html
-    html = request.urlopen(url)
+# サイトに移動
+URL = 'https://www.google.com/search?source=hp&ei=wpDCXrvNLZmJoAS-oanIBQ&q=%E5%A4%A9%E6%B0%97%E4%BA%88%E5%A0%B1&oq=&gs_lcp=CgZwc3ktYWIQARgEMg4IABDqAhC0AhCaARDlAjIOCAAQ6gIQtAIQmgEQ5QIyDggAEOoCELQCEJoBEOUCMg4IABDqAhC0AhCaARDlAjIOCAAQ6gIQtAIQmgEQ5QIyDggAEOoCELQCEJoBEOUCUABYAGDwQ2gBcAB4AIABAIgBAJIBAJgBAKoBB2d3cy13aXqwAQY&sclient=psy-ab&ved=0ahUKEwi7tv6qxb3pAhWZBIgKHb5QClkQ4dUDCA0'
+key_word = 'コナン'  # ブラウザにいれるので日本語で
+browser.get(URL)
 
-    #set BueatifulSoup
-    soup = BeautifulSoup(html, "html.parser")
-    print(soup)
-    # #get headlines
-    # mainNewsIndex = soup.find("ul", attrs={"class", "p-category-latest-sec-list"})
-    # headlines = mainNewsIndex.find_all("div", attrs={"class", "p-list-item__inner"})
-    #
-    # #print headlines
-    # for title in headlines:
-    #     print(type(title))              # type()は型の確認
-    #     # ログ見方：捕獲データ、対応した箇所のHTML部分の順に出力
-    #     pprint.pprint(title.__dict__)   # リスト（list型）や辞書（dict型）
-    #     print(title.contents[1].string) # titleの中から指定のタグの中身を表示
-    #     print(title.time.string)        # 時刻
+# 検索ワード入力欄でボタンをクリック
+searchform = browser.find_element_by_id('searchform')
+text = searchform.find_element_by_name("q") # 検索用テキストボックスの要素を取得
+text.clear() # すでに入っているキーワードを消す
+text.send_keys(key_word)
+btn = searchform.find_element_by_tag_name('button')
+btn.click()
+time.sleep(3)
 
+# クリック後
+stats = browser.find_element_by_id("result-stats").text
+print(stats)
+print(type(stats))  # -> <class 'str'>
 
-# if __name__ == "__main__":
-    # scraping()
+result = re.search(r'約\s(.+)\s件', stats) # -> <class 'str'>
+print(result[1])
+browser.close()
