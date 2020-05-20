@@ -14,7 +14,7 @@ import csv
 def print_html(x):
     print(bs4.BeautifulSoup(x.get_attribute('innerHTML'), 'html.parser').prettify())
 
-seach_word = "Ｃａｒｅｅｒ Ｂｏｏｓｔ"
+seach_word = ""
 
 browser = webdriver.Chrome()
 # サイトに移動
@@ -26,28 +26,42 @@ radiobtn.click()
 
 form_area = browser.find_element_by_tag_name('form') # 簡易検索エリア
 form_text = form_area.find_element_by_name("s01_srchCondtn_txtSimpleSearch")
-# form_text.clear() # 繰り返し検索時、すでに入っているキーワードは消す
-form_text.send_keys(seach_word)
-search_btn = form_area.find_element_by_name('s01_srchBtn_btnSearch')
-search_btn.click()
-time.sleep(2)
+# ----------------------------------------------------------------
+# csvファイル読み込み
+# ----------------------------------------------------------------
+df = pd.read_csv('trademark_names.csv', index_col=0) # index_col=0つけるとcsvの０列目をdfの０列目にしてくれる
+print(df)
+col_name = df.loc[:, 'name']    # 列を表示
+print(col_name)
+print(type(col_name))  # <class 'pandas.core.series.Series'>
 
-html = browser.find_element_by_id('s01_searchRslt')
-# soup = BeautifulSoup(html, "html.parser")
-soup = bs4.BeautifulSoup(html.get_attribute('innerHTML'), 'html.parser')
+for name in col_name:
+    # print(type(name))  # -> <class 'str'>
+    seach_word = name
+    print('検索ワード：' + seach_word)
 
-# print(soup.table.tr) # -> 成功
-# rows = (soup.table.tr).text
-rows = soup.table.findAll("tr")  # まとめて入ってる
+    form_text.clear() # 繰り返し検索時、すでに入っているキーワードは消す
+    form_text.send_keys(seach_word)
+    search_btn = form_area.find_element_by_name('s01_srchBtn_btnSearch')
+    search_btn.click()
+    time.sleep(2)
+"""
+    html = browser.find_element_by_id('s01_searchRslt')
+    # soup = BeautifulSoup(html, "html.parser")
+    soup = bs4.BeautifulSoup(html.get_attribute('innerHTML'), 'html.parser')
 
-# s = pd.Series(rows) # これ1行でもできるっぽい（空白のところが多重配列になる）
+    # print(soup.table.tr) # -> 成功
+    # rows = (soup.table.tr).text
+    rows = soup.table.findAll("tr")  # まとめて入ってる
 
-with open(f'{os.getcwd()}/syohyo.csv', 'w', encoding='utf-8') as file:
-    writer = csv.writer(file)
-    for row in rows:
-        csvRow = []
-        for cell in row.findAll(['td', 'th']):
-            csvRow.append(cell.get_text().strip().replace(' ', ''))
-        print(repr(csvRow))  # repr:空白文字などがわかりやすくなる
-        writer.writerow(csvRow)
+    # 追加書き込みモードで
+    with open(f'{os.getcwd()}/syohyo.csv', 'w', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        for row in rows:
+            csvRow = []
+            for cell in row.findAll(['td', 'th']):
+                csvRow.append(cell.get_text().strip().replace(' ', ''))
+            print(repr(csvRow))  # repr:空白文字などがわかりやすくなる
+            writer.writerow(csvRow)
+"""
 browser.close()
