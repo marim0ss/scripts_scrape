@@ -4,6 +4,7 @@ import chromedriver_binary  # パスを通せる
 import bs4
 from bs4 import BeautifulSoup
 import pandas as pd
+import datetime
 import time
 import re
 import pprint  # pprint.pprint()で出力が改行されて見やすくなる
@@ -13,7 +14,7 @@ import csv
 # 便利関数
 def print_html(x):
     print(bs4.BeautifulSoup(x.get_attribute('innerHTML'), 'html.parser').prettify())
-
+date_today = datetime.date.today()
 seach_word = ""
 
 browser = webdriver.Chrome()
@@ -44,24 +45,25 @@ for name in col_name:
     form_text.send_keys(seach_word)
     search_btn = form_area.find_element_by_name('s01_srchBtn_btnSearch')
     search_btn.click()
-    time.sleep(2)
-"""
-    html = browser.find_element_by_id('s01_searchRslt')
-    # soup = BeautifulSoup(html, "html.parser")
-    soup = bs4.BeautifulSoup(html.get_attribute('innerHTML'), 'html.parser')
+    time.sleep(3)
 
-    # print(soup.table.tr) # -> 成功
-    # rows = (soup.table.tr).text
-    rows = soup.table.findAll("tr")  # まとめて入ってる
+    search_result_area = browser.find_element_by_id('s01_searchRslt')    # 検索結果一覧のエリア
+    soup = bs4.BeautifulSoup(search_result_area.get_attribute('innerHTML'), 'html.parser')
+    try:
+        rows = soup.tbody.findAll("tr")  # まとめて入ってる
+        # pprint.pprint(rows)  # Ok
 
-    # 追加書き込みモードで
-    with open(f'{os.getcwd()}/syohyo.csv', 'w', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        for row in rows:
-            csvRow = []
-            for cell in row.findAll(['td', 'th']):
-                csvRow.append(cell.get_text().strip().replace(' ', ''))
-            print(repr(csvRow))  # repr:空白文字などがわかりやすくなる
-            writer.writerow(csvRow)
-"""
+        # 追加書き込みモードにする a
+        with open(f'{os.getcwd()}/syohyo.csv', 'a', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            for row in rows:
+                csvRow = []
+                for cell in row.findAll(['td', 'th']):
+                    csvRow.append(cell.get_text().strip().replace(' ', ''))
+                    csvRow.append(date_today)  # データの作成日を追加
+                # print(repr(csvRow))  # repr:空白文字などがわかりやすくなる
+                writer.writerow(csvRow)
+    except:
+        print(seach_word + ' は検索結果が０件です')
+        continue
 browser.close()
