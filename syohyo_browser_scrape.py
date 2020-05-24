@@ -14,12 +14,18 @@ import csv
 # 便利関数
 def print_html(x):
     print(bs4.BeautifulSoup(x.get_attribute('innerHTML'), 'html.parser').prettify())
-date_today = datetime.date.today()
+
+URL = 'https://www.j-platpat.inpit.go.jp/s0100'
 seach_word = ""
+# ----------------------------------------------------------------
+# datetimeオブジェクトを、任意の書式で文字列に変換
+# ----------------------------------------------------------------
+date = datetime.date.today()
+f = '%Y-%m-%d'
+date_today = date.strftime(f)
+# print(date_today)
 
 browser = webdriver.Chrome()
-# サイトに移動
-URL = 'https://www.j-platpat.inpit.go.jp/s0100'
 browser.get(URL)
 # 商標を選択
 radiobtn = browser.find_element_by_xpath("//*[@id='mat-radio-5']/label/div[1]")
@@ -34,7 +40,7 @@ df = pd.read_csv('trademark_names.csv', index_col=0) # index_col=0つけるとcs
 print(df)
 col_name = df.loc[:, 'name']    # 列を表示
 print(col_name)
-print(type(col_name))  # <class 'pandas.core.series.Series'>
+# print(type(col_name))  # <class 'pandas.core.series.Series'>
 
 for name in col_name:
     # print(type(name))  # -> <class 'str'>
@@ -59,9 +65,12 @@ for name in col_name:
             for row in rows:
                 csvRow = []
                 for cell in row.findAll(['td', 'th']):
-                    csvRow.append(cell.get_text().strip().replace(' ', ''))
-                    csvRow.append(date_today)  # データの作成日を追加
-                # print(repr(csvRow))  # repr:空白文字などがわかりやすくなる
+                    # print(repr(cell.img))
+                    cell_text = cell.get_text()
+                    if cell.img: cell_text = '-'
+                    csvRow.append(cell_text.strip().replace(' ', ''))
+                csvRow.extend((date_today, seach_word))   # できた１列にデータ作成日と元の検索ワードを追加
+                print(repr(csvRow))  # repr:空白文字などがわかりやすくなる
                 writer.writerow(csvRow)
     except:
         print(seach_word + ' は検索結果が０件です')
