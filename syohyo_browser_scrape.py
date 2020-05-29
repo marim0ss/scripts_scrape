@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import datetime
 import time
-import re
 import pprint  # pprint.pprint()で出力が改行されて見やすくなる
 import os # ディレクトリパス簡略化
 import csv
