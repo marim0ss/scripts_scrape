@@ -10,7 +10,7 @@ import pprint  # pprint.pprint()で出力が改行されて見やすくなる
 import os # ディレクトリパス簡略化
 import csv
 
-# 便利関数
+# 便利関数-------
 def print_html(x):
     print(bs4.BeautifulSoup(x.get_attribute('innerHTML'), 'html.parser').prettify())
 
